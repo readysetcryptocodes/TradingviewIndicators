@@ -1,0 +1,56 @@
+//@version=4
+//Credits to Checkmate from ReadySetCrypto
+study(title="BTC Onchain Indicator", shorttitle="BTC Onchain", overlay=true)
+
+//Onchain data
+diff = security("QUANDL:BCHAIN/DIFF", "D", close)
+supplyCur = security("QUANDL:BCHAIN/TOTBC", "D", close)
+mktCap = security("QUANDL:BCHAIN/MKTCP", "D", close)
+etrvu = security("QUANDL:BCHAIN/ETRVU","D",close)
+
+//Linear regression of difficulty
+issuedBTC = supplyCur - supplyCur[1]
+linregDiff = exp(-4.4)*pow(diff, 0.443)
+
+//Stock to flow price
+inflation = issuedBTC*365/supplyCur
+s2f = 1/inflation
+s2f90dma = security(syminfo.tickerid, "D", sma(s2f, 90))
+s2fprice = exp(-1.84) * pow(s2f90dma, 3.36)
+
+//Average and Top Price
+tfFactor = 0.0
+timeMeasStart = timestamp(2010, 08, 18, 0, 0, 0) 
+
+if (timeframe.period == "D")
+    tfFactor := 1
+if (timeframe.period == "W")
+    tfFactor := 7
+if (timeframe.period == "2W")
+    tfFactor := 14
+if (timeframe.period == "2D")
+    tfFactor := 2
+if (timeframe.period == "3D")
+    tfFactor := 3
+if (timeframe.period == "M")
+    tfFactor := 30
+    
+timeDiff = (time - timeMeasStart) / 1000 / 3600 / 24 / tfFactor
+var mktCapSum = 0.0
+mktCapSum := mktCapSum + mktCap
+avgCap = mktCapSum / timeDiff
+avgPrice = avgCap/supplyCur
+topPrice = 35 * avgPrice
+
+//128 DMA and 200 DMA
+dma128 = security(syminfo.tickerid, "D", sma(close, 128))
+dma200 = security(syminfo.tickerid, "D", sma(close, 200))
+
+var n = 0
+n := n+1
+plot(n % 5/tfFactor == 0 ? topPrice : na, title="Top Price", color=color.aqua, style=plot.style_linebr, linewidth=2)
+plot(n % 5/tfFactor == 0 ? avgPrice : na, title="Avg Price", color=color.aqua, style=plot.style_linebr, linewidth=2) 
+plot(s2fprice, color=color.lime, title="S2F Price", linewidth=2)
+plot(linregDiff, color=color.white, title="Lin Reg Diff", linewidth=2)
+plot(dma128, color=color.purple, title="DMA 128", linewidth=2)
+plot(dma200, color=color.yellow, title="DMA 200", linewidth=2)
