@@ -13,7 +13,8 @@ Credits to Checkmate for providing the formulas for calculation.
 ## Add Script to Tradingview Chart
 
 1. Go into Pine Editor and click **New**
-2. Paste code into editor area
+2. Paste [code](scripts/BTC_Onchain.txt)
+ into editor area
 
 ![AddScriptToTV_Step1.png](images/AddScriptToTV_Step1.png)
 
