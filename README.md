@@ -8,4 +8,17 @@ This BTC Onchain Indicator uses onchain data to provide different Pricing Models
 - Average and Top Price
 - 128 and 200 DMA
 
-Credits to Checkmate for providing formulas the for calculation.
+Credits to Checkmate for providing the formulas for calculation.
+
+## Add Script to Tradingview Chart
+
+1. Go into Pine Editor and click **New**
+2. Paste code into editor area
+
+![AddScriptToTV_Step1.png](images/AddScriptToTV_Step1.png)
+
+3. Click **Untitled Script**
+4. Click **Save**
+5. Click **Add to Chart**
+
+![AddScriptToTV_Step2.png](images/AddScriptToTV_Step2.png)
