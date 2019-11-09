@@ -18,7 +18,7 @@ Credits to Checkmate for providing the formulas for calculation.
 
 ![AddScriptToTV_Step1.png](images/AddScriptToTV_Step1.png)
 
-3. Click **Untitled Script**
+3. Click **Untitled Script** and enter name
 4. Click **Save**
 5. Click **Add to Chart**
 
