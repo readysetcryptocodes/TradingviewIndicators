@@ -7,10 +7,19 @@ diff = security("QUANDL:BCHAIN/DIFF", "D", close)
 supplyCur = security("QUANDL:BCHAIN/TOTBC", "D", close)
 mktCap = security("QUANDL:BCHAIN/MKTCP", "D", close)
 etrvu = security("QUANDL:BCHAIN/ETRVU","D",close)
+mkpru = security("QUANDL:BCHAIN/MKPRU","D",close)
 
 //Linear regression of difficulty
 issuedBTC = supplyCur - supplyCur[1]
-linregDiff = exp(-4.4)*pow(diff, 0.443)
+diffPrice = exp(-4.4)*pow(diff, 0.443)
+diffPriceDma9 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 9))
+diffPriceDma14 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 14))
+diffPriceDma25 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 25))
+diffPriceDma40 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 40))
+diffPriceDma60 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 60))
+diffPriceDma90 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 90))
+diffPriceDma128 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 128))
+diffPriceDma200 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 200))
 
 //Stock to flow price
 inflation = issuedBTC*365/supplyCur
@@ -51,6 +60,14 @@ n := n+1
 plot(n % 5/tfFactor == 0 ? topPrice : na, title="Top Price", color=color.aqua, style=plot.style_linebr, linewidth=2)
 plot(n % 5/tfFactor == 0 ? avgPrice : na, title="Avg Price", color=color.aqua, style=plot.style_linebr, linewidth=2) 
 plot(s2fprice, color=color.lime, title="S2F Price", linewidth=2)
-plot(linregDiff, color=color.white, title="Lin Reg Diff", linewidth=2)
+plot(diffPrice, color=color.yellow, title="Diff Price", linewidth=1)
+plot(diffPriceDma9, color=color.yellow, title="Diff Price DMA9", linewidth=1)
+plot(diffPriceDma14, color=color.yellow, title="Diff Price DMA14", linewidth=1)
+plot(diffPriceDma25, color=color.yellow, title="Diff Price DMA25", linewidth=1)
+plot(diffPriceDma40, color=color.yellow, title="Diff Price DMA40", linewidth=1)
+plot(diffPriceDma60, color=color.yellow, title="Diff Price DMA60", linewidth=1)
+plot(diffPriceDma90, color=color.yellow, title="Diff Price DMA90", linewidth=1)
+plot(diffPriceDma128, color=color.yellow, title="Diff Price DMA128", linewidth=1)
+plot(diffPriceDma200, color=color.yellow, title="Diff Price DMA200", linewidth=1)
 plot(dma128, color=color.purple, title="DMA 128", linewidth=2)
-plot(dma200, color=color.yellow, title="DMA 200", linewidth=2)
+plot(dma200, color=color.white, title="DMA 200", linewidth=2)
