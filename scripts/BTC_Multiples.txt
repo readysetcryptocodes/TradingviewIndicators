@@ -1,0 +1,111 @@
+//@version=4
+//Credits to Checkmate from ReadySetCrypto
+study(title="BTC Multiples", shorttitle="BTC Multiples", overlay=false)
+
+//Input
+useMultM = input(true, "Show Mayer Multiple")
+useMultS2f = input(false, "Show S2F Multiple")
+useMultDiff = input(false, "Show Difficulty Multiple")
+useMultPuell = input(true, "Show Puell Multiple")
+//useMultVwap = input(true, "Show VWAP Multiple")
+
+mmMaLen = input(200, "MM MA Length")
+mmMaSmoothLen = input(200, "MM Smooth MA Length")
+mmOverv = input(2.8, "MM Overvalued", step=0.01)
+mmUnderv = input(0.65, "MM Undervalued", step=0.01)
+s2fOverv = input(2.4, "S2F Overvalued", step=0.01)
+s2fUnderv = input(0.1, "S2F Undervalued", step=0.01)
+diffOverv = input(3.6, "Diff Overvalued", step=0.01)
+diffUnderv = input(0.2, "Diff Undervalued", step=0.01)
+puellOverv = input(6.0, "Puell Overvalued", step=0.01)
+puellUnderv = input(0.5, "Puell Undervalued", step=0.01)
+//vwapOverv = input(4.5, "VWAP Overvalued", step=0.01)
+//vwapUnderv = input(0.5, "VWAP Undervalued", step=0.01)
+
+//Onchain data
+diff = security("QUANDL:BCHAIN/DIFF", "D", close)
+supplyCur = security("QUANDL:BCHAIN/TOTBC", "D", close)
+mktCap = security("QUANDL:BCHAIN/MKTCP", "D", close)
+etrvu = security("QUANDL:BCHAIN/ETRVU","D",close)
+mkpru = security("QUANDL:BCHAIN/MKPRU","D",close)
+mirev = security("QUANDL:BCHAIN/MIREV", "D", close)
+
+//VWAP
+VWAP2() =>
+    l_src = mkpru
+    l_t = time("D")
+    l_start = na(l_t[1]) or l_t > l_t[1]
+    l_sumSrc = l_src * etrvu
+    l_sumVol = etrvu
+    l_sumSrc := l_start ? l_sumSrc : l_sumSrc + l_sumSrc[1]
+    l_sumVol := l_start ? l_sumVol : l_sumVol + l_sumVol[1]
+    l_vwapPs = l_sumSrc / l_sumVol   
+    l_vwapPs
+
+VWAP() =>
+    l_vwapPs = vwap
+    l_vwapPs
+
+//Linear regression of difficulty multiple
+issuedBTC = supplyCur - supplyCur[1]
+diffPrice = exp(-4.4)*pow(diff, 0.443)
+diffMultiple = mkpru / diffPrice
+
+//Stock to flow multiple
+inflation = issuedBTC*365/supplyCur
+s2f = 1/inflation
+s2f90dma = security(syminfo.tickerid, "D", sma(s2f, 90))
+s2fprice = exp(-1.84) * pow(s2f90dma, 3.36)
+s2fMultiple = mkpru / s2fprice
+
+//Mayer Multiple
+dma = security(syminfo.tickerid, "D", sma(mkpru, mmMaLen))
+mayerMultiple = mkpru / dma
+mmMa = sma(mayerMultiple, mmMaSmoothLen)
+
+//Puell Multiple
+ma365 = security("QUANDL:BCHAIN/MIREV", "D", sma(close, 365))
+puellMultiple = mirev / ma365
+
+//VWAP Multiple
+//vwapMultiple = mkpru / security(syminfo.tickerid, "D", sma(VWAP2(), 365))
+
+//Plot 
+mmFillColor = mayerMultiple >= mmOverv ? color.red : mayerMultiple <= mmUnderv ? color.green : na
+s2fFillColor = s2fMultiple >= s2fOverv ? color.red : s2fMultiple <= s2fUnderv ? color.green : na
+diffFillColor = diffMultiple >= diffOverv ? color.red : diffMultiple <= diffUnderv ? color.green : na
+puellFillColor = puellMultiple >= puellOverv ? color.red : puellMultiple <= puellUnderv ? color.green : na
+//vwapFillColor = vwapMultiple >= vwapOverv ? color.red : vwapMultiple <= vwapUnderv ? color.green : na
+bgcolor(useMultM ? mmFillColor : na, transp=80)
+bgcolor(useMultS2f ? s2fFillColor : na, transp=80)
+bgcolor(useMultDiff ? diffFillColor: na, transp=80)
+bgcolor(useMultPuell ? puellFillColor: na, transp=80)
+//bgcolor(useMultVwap ? vwapFillColor: na, transp=80)
+
+plot(useMultM ? mayerMultiple : na, color=color.white, title="Mayer Multiple", linewidth=1)
+plot(useMultM ? mmMa : na, color=color.orange, title="MM MA", linewidth=1)
+//plotshape(crossover(mayerMultiple, mmMa) ? mayerMultiple : na, title="Buy", location=location.absolute, style=shape.circle, size=size.tiny, color=color.lime, transp=0, editable=false)
+//plotshape(crossunder(mayerMultiple, mmMa) ? mayerMultiple : na, title="Sell", location=location.absolute, style=shape.circle, size=size.tiny, color=color.red, transp=0, editable=false)
+plot(useMultS2f ? s2fMultiple : na, color=color.lime, title="S2F Multiple", linewidth=1)
+plot(useMultDiff ? diffMultiple : na, color=color.yellow, title="Diff Multiple", linewidth=1)
+plot(useMultPuell ? puellMultiple : na, color=color.purple, title="Puell Multiple", linewidth=1)
+
+var n = 0
+n := n+1
+plot(useMultM ? n % 5 != 0 ? mmOverv : na : na, color=color.gray, title="MM Overvalued", style=plot.style_linebr, linewidth=1)
+plot(useMultM ? n % 5 != 0 ? mmUnderv : na : na, color=color.gray, title="MM Undervalued", style=plot.style_linebr, linewidth=1)
+plot(useMultS2f ? n % 5 != 0 ? s2fOverv : na : na, color=color.gray, title="S2F Overvalued", style=plot.style_linebr, linewidth=1)
+plot(useMultS2f ? n % 5 != 0 ? s2fUnderv : na : na, color=color.gray, title="S2F Undervalued", style=plot.style_linebr, linewidth=1)
+plot(useMultDiff ? n % 5 != 0 ? diffOverv : na : na, color=color.gray, title="Diff Overvalued", style=plot.style_linebr, linewidth=1)
+plot(useMultDiff ? n % 5 != 0 ? diffUnderv : na : na, color=color.gray, title="Diff Undervalued", style=plot.style_linebr, linewidth=1)
+plot(useMultPuell ? n % 5 != 0 ? puellOverv : na : na, color=color.gray, title="PM Overvalued", style=plot.style_linebr, linewidth=1)
+plot(useMultPuell ? n % 5 != 0 ? puellUnderv : na : na, color=color.gray, title="PM Undervalued", style=plot.style_linebr, linewidth=1)
+//plot(useMultVwap ? vwapMultiple : na, color=color.purple, title="VWAP Multiple", linewidth=2)
+
+//Alerts
+//Mayer Multiple
+alertcondition(crossover(mayerMultiple, mmOverv), title="Mayer Multiple Overvalued", message='{"content": "Mayer Multiple Overvalued:\\n {{exchange}}:{{ticker}}: price: {{close}}\\n Multiple value: {{plot("Mayer Multiple")}}"}')
+alertcondition(crossunder(mayerMultiple, mmUnderv), title="Mayer Multiple Undervalued", message='{"content": "Mayer Multiple Undervalued:\\n {{exchange}}:{{ticker}}: price: {{close}}\\n Multiple value: {{plot("Mayer Multiple")}}"}')
+//Puell Multiple
+alertcondition(crossover(puellMultiple, puellOverv), title="Puell Multiple Overvalued", message='{"content": "Puell Multiple Overvalued:\\n {{exchange}}:{{ticker}}: price: {{close}}\\n Multiple value: {{plot("Puell Multiple")}}"}')
+alertcondition(crossunder(puellMultiple, puellUnderv), title="Puell Multiple Undervalued", message='{"content": "Puell Multiple Undervalued:\\n {{exchange}}:{{ticker}}: price: {{close}}\\n Multiple value: {{plot("Puell Multiple")}}"}')
