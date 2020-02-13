@@ -1,3 +1,13 @@
+# RSC Trend Trading Indicator
+This RSC Trend Trading Indicator provides Buy and Sell signals using Donchian channels and simple moving averages.
+
+### Buy:
+- Price hits upper Donchian channel (period 20)
+- Closing price is above 50 SMA
+- Closing price is above 200 SMA
+### Sell:
+Price hits lower Donchian channel (period 10)
+
 # BTC Onchain Indicator
 This BTC Onchain Indicator uses onchain data to provide different Pricing Models for trend determination.
 
