@@ -36,7 +36,7 @@ diffPriceDma40 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443),
 diffPriceDma60 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 60))
 diffPriceDma90 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 90))
 diffPriceDma128 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 128))
-diffPriceDma200 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 200))
+diffPriceDma200 = security(syminfo.tickerid, "D", sma(exp(-4.4)*pow(diff, 0.443), 200)) 
 
 //Stock to flow price
 inflation = issuedBTC*365/supplyCur
@@ -116,12 +116,22 @@ plot(showVwapRibbon ? vwapDma200 : na, color=color.teal, title="VWAP DMA200", li
 plot(showVwapRibbon ? vwapDma365 : na, color=color.teal, title="VWAP DMA365", linewidth=1)
 
 //Alerts
-//SMA 128
+//DMA 128
 alertcondition(crossover(close, dma128), title="DMA128 crossover",   message='{"content": "DMA128 crossover: \\n {{exchange}}:{{ticker}}: price: {{close}}"}')
 alertcondition(crossunder(close, dma128), title="DMA128 crossunder", message='{"content": "DMA128 crossunder:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
-//SMA 200
+//DMA 200
 alertcondition(crossover(close, dma200), title="DMA200 crossover",   message='{"content": "DMA200 crossover: \\n {{exchange}}:{{ticker}}: price: {{close}}"}')
 alertcondition(crossunder(close, dma200), title="DMA200 crossunder", message='{"content": "DMA200 crossunder:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
-//SMA 128/200 cross
+//DMA 128/200 cross
 alertcondition(crossover(dma128, dma200), title="DMA128/DMA200 crossover",   message='{"content": "DMA128 crossed above DMA200:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
 alertcondition(crossunder(dma128, dma200), title="DMA128/DMA200 crossunder", message='{"content": "DMA128 crossed below DMA200:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
+
+//WMA 128
+alertcondition(crossover(close, wma128), title="WMA128 crossover",   message='{"content": "WMA128 crossover: \\n {{exchange}}:{{ticker}}: price: {{close}}"}')
+alertcondition(crossunder(close, wma128), title="WMA128 crossunder", message='{"content": "WMA128 crossunder:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
+//WMA 200
+alertcondition(crossover(close, wma200), title="WMA200 crossover",   message='{"content": "WMA200 crossover: \\n {{exchange}}:{{ticker}}: price: {{close}}"}')
+alertcondition(crossunder(close, wma200), title="WMA200 crossunder", message='{"content": "WMA200 crossunder:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
+//WMA 128/200 cross
+alertcondition(crossover(wma128, wma200), title="WMA128/WMA200 crossover",   message='{"content": "WMA128 crossed above WMA200:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
+alertcondition(crossunder(wma128, wma200), title="WMA128/WMA200 crossunder", message='{"content": "WMA128 crossed below WMA200:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
