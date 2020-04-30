@@ -14,9 +14,11 @@ This BTC Onchain Indicator uses onchain data to provide different Pricing Models
 ## Features
 
 - Linear Regression of Difficulty
+- Difficulty Ribbon
 - Stock to Flow Price
 - Average and Top Price
 - 128 and 200 DMA
+- 128 and 200 WMA
 
 # BTC Multiples Indicator
 This BTC Indicator provides several multiples for top and bottom detection.
