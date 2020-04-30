@@ -2,12 +2,29 @@
 //Credits to Checkmate from ReadySetCrypto
 study(title="BTC Onchain Indicator", shorttitle="BTC Onchain", overlay=true)
 
+showDiffRibbon = input(true, "Show Difficulty Ribbon")
+showVwapRibbon = false //input(false, "Show VWAP Ribbon")
+
 //Onchain data
 diff = security("QUANDL:BCHAIN/DIFF", "D", close)
 supplyCur = security("QUANDL:BCHAIN/TOTBC", "D", close)
 mktCap = security("QUANDL:BCHAIN/MKTCP", "D", close)
 etrvu = security("QUANDL:BCHAIN/ETRVU","D",close)
+etrav = security("QUANDL:BCHAIN/ETRAV","D",close)
 mkpru = security("QUANDL:BCHAIN/MKPRU","D",close)
+toutv = security("QUANDL:BCHAIN/TOUTV","D",close) 
+
+//VWAP
+VWAP() =>
+    l_src = mkpru
+    l_t = time("D")
+    l_start = na(l_t[1]) or l_t > l_t[1]
+    l_sumSrc = l_src * etrvu
+    l_sumVol = etrvu
+    l_sumSrc := l_start ? l_sumSrc : l_sumSrc + l_sumSrc[1]
+    l_sumVol := l_start ? l_sumVol : l_sumVol + l_sumVol[1]
+    l_vwapPs = l_sumSrc / l_sumVol   
+    l_vwapPs
 
 //Linear regression of difficulty
 issuedBTC = supplyCur - supplyCur[1]
@@ -54,20 +71,57 @@ topPrice = 35 * avgPrice
 //128 DMA and 200 DMA
 dma128 = security(syminfo.tickerid, "D", sma(close, 128))
 dma200 = security(syminfo.tickerid, "D", sma(close, 200))
+wma128 = security(syminfo.tickerid, "W", sma(close, 128))
+wma200 = security(syminfo.tickerid, "W", sma(close, 200))
 
+//VWAP
+dayDiff = (time - timeMeasStart) / 1000 / 3600 / 24
+var vwapSum = 0.0
+vwapSum := vwapSum + VWAP()
+vwapAvg = vwapSum / timeDiff * 2.618
+vwapDma14 = security(syminfo.tickerid, "D", sma(VWAP(), 14))
+vwapDma30 = security(syminfo.tickerid, "D", sma(VWAP(), 30))
+vwapDma60 = security(syminfo.tickerid, "D", sma(VWAP(), 60))
+vwapDma90 = security(syminfo.tickerid, "D", sma(VWAP(), 90))
+vwapDma128 = security(syminfo.tickerid, "D", sma(VWAP(), 128))
+vwapDma200 = security(syminfo.tickerid, "D", sma(VWAP(), 200))
+vwapDma365 = security(syminfo.tickerid, "D", sma(VWAP(), 365))
+
+//Plot
 var n = 0
 n := n+1
 plot(n % 5/tfFactor == 0 ? topPrice : na, title="Top Price", color=color.aqua, style=plot.style_linebr, linewidth=2)
 plot(n % 5/tfFactor == 0 ? avgPrice : na, title="Avg Price", color=color.aqua, style=plot.style_linebr, linewidth=2) 
 plot(s2fprice, color=color.lime, title="S2F Price", linewidth=2)
 plot(diffPrice, color=color.yellow, title="Diff Price", linewidth=1)
-plot(diffPriceDma9, color=color.yellow, title="Diff Price DMA9", linewidth=1)
-plot(diffPriceDma14, color=color.yellow, title="Diff Price DMA14", linewidth=1)
-plot(diffPriceDma25, color=color.yellow, title="Diff Price DMA25", linewidth=1)
-plot(diffPriceDma40, color=color.yellow, title="Diff Price DMA40", linewidth=1)
-plot(diffPriceDma60, color=color.yellow, title="Diff Price DMA60", linewidth=1)
-plot(diffPriceDma90, color=color.yellow, title="Diff Price DMA90", linewidth=1)
-plot(diffPriceDma128, color=color.yellow, title="Diff Price DMA128", linewidth=1)
-plot(diffPriceDma200, color=color.yellow, title="Diff Price DMA200", linewidth=1)
-plot(dma128, color=color.purple, title="DMA 128", linewidth=2)
-plot(dma200, color=color.white, title="DMA 200", linewidth=2)
+plot(dma128, color=color.purple, title="DMA128", linewidth=2)
+plot(dma200, color=color.white, title="DMA200", linewidth=2)
+plot(wma128, color=color.aqua, title="WMA128", linewidth=2)
+plot(wma200, color=color.orange, title="WMA200", linewidth=2)
+plot(showDiffRibbon ? diffPriceDma9 : na, color=color.yellow, title="Diff Price DMA9", linewidth=1)
+plot(showDiffRibbon ? diffPriceDma14 : na, color=color.yellow, title="Diff Price DMA14", linewidth=1)
+plot(showDiffRibbon ? diffPriceDma25 : na, color=color.yellow, title="Diff Price DMA25", linewidth=1)
+plot(showDiffRibbon ? diffPriceDma40 : na, color=color.yellow, title="Diff Price DMA40", linewidth=1)
+plot(showDiffRibbon ? diffPriceDma60 : na, color=color.yellow, title="Diff Price DMA60", linewidth=1)
+plot(showDiffRibbon ? diffPriceDma90 : na, color=color.yellow, title="Diff Price DMA90", linewidth=1)
+plot(showDiffRibbon ? diffPriceDma128 : na, color=color.yellow, title="Diff Price DMA128", linewidth=1)
+plot(showDiffRibbon ? diffPriceDma200 : na, color=color.yellow, title="Diff Price DMA200", linewidth=1)
+plot(showVwapRibbon ? vwapAvg : na, color=color.teal, title="VWAP Avg", linewidth=1)
+plot(showVwapRibbon ? vwapDma14 : na, color=color.teal, title="VWAP DMA14", linewidth=1)
+plot(showVwapRibbon ? vwapDma30 : na, color=color.teal, title="VWAP DMA30", linewidth=1)
+plot(showVwapRibbon ? vwapDma60 : na, color=color.teal, title="VWAP DMA60", linewidth=1)
+plot(showVwapRibbon ? vwapDma90 : na, color=color.teal, title="VWAP DMA90", linewidth=1)
+plot(showVwapRibbon ? vwapDma128 : na, color=color.teal, title="VWAP DMA128", linewidth=1)
+plot(showVwapRibbon ? vwapDma200 : na, color=color.teal, title="VWAP DMA200", linewidth=1)
+plot(showVwapRibbon ? vwapDma365 : na, color=color.teal, title="VWAP DMA365", linewidth=1)
+
+//Alerts
+//SMA 128
+alertcondition(crossover(close, dma128), title="DMA128 crossover",   message='{"content": "DMA128 crossover: \\n {{exchange}}:{{ticker}}: price: {{close}}"}')
+alertcondition(crossunder(close, dma128), title="DMA128 crossunder", message='{"content": "DMA128 crossunder:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
+//SMA 200
+alertcondition(crossover(close, dma200), title="DMA200 crossover",   message='{"content": "DMA200 crossover: \\n {{exchange}}:{{ticker}}: price: {{close}}"}')
+alertcondition(crossunder(close, dma200), title="DMA200 crossunder", message='{"content": "DMA200 crossunder:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
+//SMA 128/200 cross
+alertcondition(crossover(dma128, dma200), title="DMA128/DMA200 crossover",   message='{"content": "DMA128 crossed above DMA200:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
+alertcondition(crossunder(dma128, dma200), title="DMA128/DMA200 crossunder", message='{"content": "DMA128 crossed below DMA200:\\n {{exchange}}:{{ticker}}: price: {{close}}"}')
