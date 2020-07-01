@@ -1,0 +1,99 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © mrx_the_unknown
+
+//@version=4
+study(title="RSTEmaVwap", shorttitle="RSTEmaVwap", overlay=true)
+
+showVwap = input(true, title="Show VWAP?")
+showVwapStdev = input(true, title="Show VWAP Standard Deviations?")
+showEmas = input(true, title="Show EMAs?")
+
+var float ema200 = na
+var float ema50 = na
+var float ema21 = na
+var float ema8 = na
+
+var float sema200 = na
+var float sema50 = na
+var float vwapStdDev1Upper = na
+var float vwapStdDev1Lower = na
+var float vwapStdDev2Upper = na
+var float vwapStdDev2Lower = na
+
+
+t = time("D")
+start = na(t[1]) or t > t[1]
+
+float sumSrc = na
+float sumVol = na
+float sumVol2 = na
+
+sumSrc := start ? hlc3 * volume : hlc3 * volume + sumSrc[1]
+sumVol := start ? volume : volume + sumVol[1]
+sumVol2 := start ? volume * hlc3 * hlc3 : volume * hlc3 * hlc3 + sumVol2[1]
+vwapDaily = sumSrc / sumVol
+dev = sqrt(max(sumVol2/sumVol - vwapDaily * vwapDaily, 0))
+
+vwapDaily := na
+
+if (timeframe.period == "D")
+    sema200 := (ema(close, 200) + sma(close, 200)) / 2
+    sema50 := (ema(close, 50) + sma(close, 50)) / 2
+    vwapDaily := na
+
+if (timeframe.isintraday)    
+    ema200length = 45 / timeframe.multiplier * 200
+    ema50length = 45 / timeframe.multiplier * 50
+    ema200 := ema(close, ema200length)
+    ema50 := ema(close, ema50length)
+
+if (timeframe.period == "30")
+    ema21 := na
+    //ema21 := ema(close, 32)
+    //ema8 := ema(close, 12)
+    //vwapDaily := vwap
+    //vwapStdDev1Upper := vwapDaily + dev
+    //vwapStdDev1Lower := vwapDaily - dev
+    //vwapStdDev2Upper := vwapDaily + dev * 2
+    //vwapStdDev2Lower := vwapDaily - dev * 2
+
+else if (timeframe.period == "15")
+    ema21 := ema(close, 21)
+    ema8 := ema(close, 8)
+    vwapDaily := sumSrc / sumVol
+    vwapStdDev1Upper := vwapDaily + dev
+    vwapStdDev1Lower := vwapDaily - dev
+    vwapStdDev2Upper := vwapDaily + dev * 2
+    vwapStdDev2Lower := vwapDaily - dev * 2
+    
+else if (timeframe.period == "5")
+    ema21 := ema(close, 21)
+    ema8 := ema(close, 8)
+    vwapDaily := sumSrc / sumVol
+    vwapStdDev1Upper := vwapDaily + dev
+    vwapStdDev1Lower := vwapDaily - dev
+    vwapStdDev2Upper := vwapDaily + dev * 2
+    vwapStdDev2Lower := vwapDaily - dev * 2
+    
+else if (timeframe.period == "3")
+    ema21 := ema(close, 35)
+    ema8 := ema(close, 13)
+    vwapDaily := sumSrc / sumVol
+    vwapStdDev1Upper := vwapDaily + dev
+    vwapStdDev1Lower := vwapDaily - dev
+    vwapStdDev2Upper := vwapDaily + dev * 2
+    vwapStdDev2Lower := vwapDaily - dev * 2
+
+plot(showEmas ? ema8 : na, title="EMA8", color=color.aqua, linewidth=2, transp=0)
+plot(showEmas ? ema21 : na, title="EMA21", color=color.yellow, linewidth=2, transp=0)
+plot(showEmas ? ema50 : na, title="EMA50", color=color.purple, linewidth=2, transp=0)
+plot(showEmas ? ema200 : na, title="EMA200", color=color.red, linewidth=2, transp=0)
+plot(showEmas ? sema50 : na, title="SEMA50", color=color.purple, linewidth=2, transp=0)
+plot(showEmas ? sema200 : na, title="SEMA200", color=color.red, linewidth=2, transp=0)
+plot(showVwap ? vwapDaily : na, title="VwapDaily", color=color.white, linewidth=1, transp=0)
+vwapStdDev1UpperPlot = plot(showVwapStdev ? vwapStdDev1Upper : na, title="VwapStdDev1Upper", color=color.gray, linewidth=1, transp=0)
+vwapStdDev1LowerPlot = plot(showVwapStdev ? vwapStdDev1Lower : na, title="VwapStdDev1Lower", color=color.gray, linewidth=1, transp=0)
+vwapStdDev2UpperPlot = plot(showVwapStdev ? vwapStdDev2Upper : na, title="VwapStdDev2Upper", color=color.gray, linewidth=1, transp=0)
+vwapStdDev2LowerPlot = plot(showVwapStdev ? vwapStdDev2Lower : na, title="VwapStdDev2Lower", color=color.gray, linewidth=1, transp=0)
+fill(vwapStdDev1UpperPlot, vwapStdDev2UpperPlot)
+fill(vwapStdDev1LowerPlot, vwapStdDev2LowerPlot)

@@ -1,0 +1,41 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © mrx_the_unknown
+
+//@version=4
+study("RSTRsi", shorttitle="RSTRsi")
+sep0 = input(true, "Information: On 3min timeframe RSI 2 gets overwritten by RSI with a length of 2 on the 10min timeframe")
+sep1 = input(true, "Information: On 15min timeframe RSI 2 gets overwritten by RSI with a length of 2 on the 60min timeframe")
+rsi1Show = input(true, title="RSI 1 Show?")
+rsi2Show = input(true, title="RSI 2 Show?")
+
+rsi1Len = input(title="RSI 1 Length", type=input.integer, defval=2)
+rsi2Len = input(title="RSI 2 Length", type=input.integer, defval=10)
+
+rsiSrc = close
+rsiLower = 30
+rsiUpper = 70
+
+var float rsi1 = na
+var float rsi2 = na
+
+rsi2_15min =security(syminfo.tickerid, "60", rsi(rsiSrc, 2), barmerge.gaps_off, barmerge.lookahead_on)
+rsi2_3min = security(syminfo.tickerid, "10", rsi(rsiSrc, 2), barmerge.gaps_off, barmerge.lookahead_on)
+
+if (timeframe.period == "15")
+    rsi1 := rsi(rsiSrc, rsi1Len)
+    rsi2 := rsi2_15min
+else if (timeframe.period == "3")
+    rsi1 := rsi(rsiSrc, rsi1Len)
+    rsi2 := rsi2_3min
+else if (timeframe.isintraday or timeframe.isdaily)
+    rsi1 := rsi(rsiSrc, rsi1Len)
+    rsi2 := rsi(rsiSrc, rsi2Len)
+
+plot(rsi1Show ? rsi1 : na, title="RSI1", linewidth=1, color=color.white, transp=0)
+plot(rsi2Show ? rsi2 : na, title="RSI2", linewidth=2, color=color.aqua, transp=0)
+
+hline(50, title="Middle Level", linestyle=hline.style_dotted)
+rsiLowerPlot = hline(rsiLower, title="RsiLower", linestyle=hline.style_dashed)
+rsiUpperPlot = hline(rsiUpper, title="RsiUpper", linestyle=hline.style_dashed)
+
+fill(rsiLowerPlot, rsiUpperPlot, color=#9915ff, transp=90)
