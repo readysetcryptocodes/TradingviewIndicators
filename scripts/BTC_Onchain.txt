@@ -1,8 +1,13 @@
 //@version=4
+//©CryptoManiac
 //Credits to Checkmate from ReadySetCrypto
 study(title="BTC Onchain Indicator", shorttitle="BTC Onchain", overlay=true)
 
 showDiffRibbon = input(true, "Show Difficulty Ribbon")
+showTopAvgPrice = input(false, "Show Top & Avg Price")
+showMas = input(true, "Show MAs")
+showS2fPrice = input(false, "Show S2F Price")
+showMmPriceBands = input(false, "Show MM Price Bands")
 showVwapRibbon = false //input(false, "Show VWAP Ribbon")
 
 //Onchain data
@@ -71,8 +76,8 @@ topPrice = 35 * avgPrice
 //128 DMA and 200 DMA
 dma128 = security(syminfo.tickerid, "D", sma(close, 128))
 dma200 = security(syminfo.tickerid, "D", sma(close, 200))
-wma128 = security(syminfo.tickerid, "W", sma(close, 128))
-wma200 = security(syminfo.tickerid, "W", sma(close, 200))
+wma128 = security(syminfo.tickerid, "D", sma(close, 896))
+wma200 = security(syminfo.tickerid, "D", sma(close, 1400))
 
 //VWAP
 dayDiff = (time - timeMeasStart) / 1000 / 3600 / 24
@@ -87,17 +92,30 @@ vwapDma128 = security(syminfo.tickerid, "D", sma(VWAP(), 128))
 vwapDma200 = security(syminfo.tickerid, "D", sma(VWAP(), 200))
 vwapDma365 = security(syminfo.tickerid, "D", sma(VWAP(), 365))
 
+//Mayer Multiple
+dma = security(syminfo.tickerid, "D", sma(close, 200))
+mkpruDma = security(syminfo.tickerid, "D", sma(mkpru, 200))
+mayerMultiple = mkpru / dma
+
 //Plot
 var n = 0
 n := n+1
-plot(n % 5/tfFactor == 0 ? topPrice : na, title="Top Price", color=color.aqua, style=plot.style_linebr, linewidth=2)
-plot(n % 5/tfFactor == 0 ? avgPrice : na, title="Avg Price", color=color.aqua, style=plot.style_linebr, linewidth=2) 
-plot(s2fprice, color=color.lime, title="S2F Price", linewidth=2)
-plot(diffPrice, color=color.yellow, title="Diff Price", linewidth=1)
-plot(dma128, color=color.purple, title="DMA128", linewidth=2)
-plot(dma200, color=color.white, title="DMA200", linewidth=2)
-plot(wma128, color=color.aqua, title="WMA128", linewidth=2)
-plot(wma200, color=color.orange, title="WMA200", linewidth=2)
+
+plot(showMmPriceBands ? n % 5/tfFactor == 0 ? 0.6*dma : na : na, title="Generation Buy", color=color.lime, style=plot.style_linebr, linewidth=2)
+plot(showMmPriceBands ? n % 5/tfFactor == 0 ? 0.8*dma : na : na, title="Accumulation Buy", color=color.green, style=plot.style_linebr, linewidth=2)
+plot(showMmPriceBands ? n % 5/tfFactor == 0 ?     dma : na : na, title="DMA 200", color=color.white, style=plot.style_linebr, linewidth=2)
+plot(showMmPriceBands ? n % 5/tfFactor == 0 ? 1.6*dma : na : na, title="Caution", color=color.yellow, style=plot.style_linebr, linewidth=2)
+plot(showMmPriceBands ? n % 5/tfFactor == 0 ? 2.4*dma : na : na, title="Local Top Sell", color=color.maroon, style=plot.style_linebr, linewidth=2)
+plot(showMmPriceBands ? n % 5/tfFactor == 0 ? 3.4*dma : na : na, title="Blow-Off Top Sell", color=color.red, style=plot.style_linebr, linewidth=2)
+
+plot(showTopAvgPrice ? n % 5/tfFactor == 0 ? topPrice : na : na, title="Top Price", color=color.aqua, style=plot.style_linebr, linewidth=2)
+plot(showTopAvgPrice ? n % 5/tfFactor == 0 ? avgPrice : na : na, title="Avg Price", color=color.aqua, style=plot.style_linebr, linewidth=2) 
+plot(showS2fPrice ? s2fprice : na, color=color.lime, title="S2F Price", linewidth=2)
+plot(showDiffRibbon ? diffPrice : na, color=color.yellow, title="Diff Price", linewidth=1)
+plot(showMas ? dma128 : na, color=color.purple, title="DMA128", linewidth=2)
+plot(showMas ? dma200 : na, color=color.white, title="DMA200", linewidth=2)
+plot(showMas ? wma128 : na, color=color.aqua, title="WMA128", linewidth=2)
+plot(showMas ? wma200 : na, color=color.orange, title="WMA200", linewidth=2)
 plot(showDiffRibbon ? diffPriceDma9 : na, color=color.yellow, title="Diff Price DMA9", linewidth=1)
 plot(showDiffRibbon ? diffPriceDma14 : na, color=color.yellow, title="Diff Price DMA14", linewidth=1)
 plot(showDiffRibbon ? diffPriceDma25 : na, color=color.yellow, title="Diff Price DMA25", linewidth=1)

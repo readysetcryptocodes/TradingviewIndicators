@@ -1,0 +1,45 @@
+//@version=3
+//©CryptoManiac
+//Based on the medium article by Philip Swift
+//https://medium.com/@positivecrypto/the-golden-ratio-multiplier-c2567401e12a?sk=e38c4eff4357a1131bed57a3f4b3eeae
+study(title="BTC Golden Ratio", overlay=true)
+useDailyTimeframe = input(true, title="Use Static Daily Timeframe")
+dma111 = security(tickerid, useDailyTimeframe ? "D" : period, sma(close, 111))
+dma350 = security(tickerid, useDailyTimeframe ? "D" : period, sma(close, 350))
+goldenRatio = dma350 * 1.6
+fib2 = dma350 * 2
+fib3 = dma350 * 3
+fib5 = dma350 * 5
+fib8 = dma350 * 8
+fib13 = dma350 * 13
+fib21 = dma350 * 21
+negFib1_4 = dma350 / 1.4
+negFib1_6 = dma350 / 1.6
+negFib2 = dma350 / 2
+negFib2_6 = dma350 / 2.6
+
+plot(dma111, color = white, transp=0)
+plot(dma350, color = orange, transp=0)
+plot(goldenRatio, color = green, transp=0)
+plot(fib2, color = red, transp=0)
+plot(fib3, color = purple, transp=0)
+plot(fib5, color = gray, transp=0)
+plot(fib8, color = gray, transp=0)
+plot(fib13, color = gray, transp=0)
+plot(fib21, color = gray, transp=0)
+plot(negFib1_4, color= yellow, transp=0)
+plot(negFib1_6, color = yellow, transp=0)
+plot(negFib2, color = yellow, transp=0)
+plot(negFib2_6, color = yellow, transp=0)
+
+bottom1 = crossunder(dma111, negFib1_4)
+bottom2 = crossunder(dma111, negFib1_6)
+bottom3 = crossunder(dma111, negFib2)
+bottom4 = crossunder(dma111, negFib2_6)
+top = crossover (dma111, fib2)
+
+plotshape(bottom1, title="Long1", style=shape.triangleup, location=location.belowbar, color=lime, text="LONG", size=size.small, transp=0)
+plotshape(bottom2, title="Long2", style=shape.triangleup, location=location.belowbar, color=lime, text="LONG", size=size.small, transp=0)
+plotshape(bottom3, title="Long3", style=shape.triangleup, location=location.belowbar, color=lime, text="LONG", size=size.small, transp=0)
+plotshape(bottom4, title="Long4", style=shape.triangleup, location=location.belowbar, color=lime, text="LONG", size=size.small, transp=0)
+plotshape(top, title="Short", style=shape.triangledown, location=location.abovebar, color=red, text="SHORT", size=size.small, transp=0)

@@ -1,4 +1,5 @@
 //@version=4
+//©CryptoManiac
 //Credits to Checkmate from ReadySetCrypto
 study(title="BTC Multiples", shorttitle="BTC Multiples", overlay=false)
 
