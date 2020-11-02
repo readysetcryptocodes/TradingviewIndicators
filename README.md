@@ -28,6 +28,7 @@ This BTC Onchain Indicator uses onchain data to provide different Pricing Models
 - Average and Top Price
 - 128 and 200 DMA
 - 128 and 200 WMA
+- Mayer Multiple Pricing Bands
 
 ## BTC Multiples Indicator
 This BTC Indicator provides several multiples for top and bottom detection.
@@ -38,6 +39,12 @@ This BTC Indicator provides several multiples for top and bottom detection.
 - Stock to Flow Multiple
 - Linear Regression of Difficulty Multiple
 - Puell Multiple https://www.lookintobitcoin.com/charts/puell-multiple/
+
+## BTC Golden Ratio Indicator
+This BTC Indicator is based on the article from Philipp Swift:  
+https://medium.com/@positivecrypto/the-golden-ratio-multiplier-c2567401e12a
+
+It is supposed to give you bottom and top signals. Historically those signals have worked pretty well.
 
 # Add Script to Tradingview Chart
 
