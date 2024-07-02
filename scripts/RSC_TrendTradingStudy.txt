@@ -1,44 +1,53 @@
-//@version=4
-study(title="RSC Trend Trading Study", shorttitle="RSC TTS", overlay=true)
-lengthHigher = input(title="Buy Donchian Channel Period", defval=20, minval=1)
-lengthLower = input(title="Buy Donchian Channel Period", defval=10, minval=1)
-smaFast = input(title="SMA Fast", defval=50)
-smaSlow = input(title="SMA Slow", defval=200)
-buyOverSma50 = input(title="Buy Over SMA 50 Close", defval=true)
-buyOverSma50andSma200 = input(title="Buy Over SMA 50 & 200 Close", defval=true)
-lower = lowest(lengthLower)
-upper = highest(lengthHigher)
-//basis = avg(upper, lower)
-ma200 = sma(close, smaSlow)
-ma50 = sma(close, smaFast)
-u = plot(upper, color=color.aqua, linewidth=2, transp=0)
-l = plot(lower, color=color.orange, linewidth=2, transp=0)
-plot(ma50, color=color.red, linewidth=2, transp=0)
-plot(ma200, color=color.green, linewidth=2, transp=0)
-fill(u, l, color=color.blue)
+//@version=5
+indicator(title="RSC Trend Trading Study", shorttitle="RSC TTS", overlay=true)
 
-rscTiActive = 0
-rscTi = 0
+// Input parameters
+lengthHigher = input.int(title="Buy Donchian Channel Period", defval=20, minval=1)
+lengthLower = input.int(title="Buy Donchian Channel Period", defval=10, minval=1)
+smaFast = input.int(title="SMA Fast", defval=50)
+smaSlow = input.int(title="SMA Slow", defval=200)
+buyOverSma50 = input.bool(title="Buy Over SMA 50 Close", defval=true)
+buyOverSma50andSma200 = input.bool(title="Buy Over SMA 50 & 200 Close", defval=true)
 
+// Calculate Donchian Channels
+lower = ta.lowest(low, lengthLower)
+upper = ta.highest(high, lengthHigher)
+
+// Calculate SMAs
+ma200 = ta.sma(close, smaSlow)
+ma50 = ta.sma(close, smaFast)
+
+// Plot Donchian Channels and SMAs
+u = plot(upper, color=color.new(color.aqua, 0), linewidth=2)
+l = plot(lower, color=color.new(color.orange, 0), linewidth=2)
+plot(ma50, color=color.new(color.red, 0), linewidth=2)
+plot(ma200, color=color.new(color.green, 0), linewidth=2)
+fill(u, l, color=color.new(color.blue, 90))
+
+// Initialize variables
+var int rscTiActive = 0
+var int rscTi = 0
+
+// Conditions for buy and sell signals
 if (buyOverSma50 and not buyOverSma50andSma200)
     if (high >= upper and close > ma50)
         rscTi := 1
-        //strategy.entry("Long", strategy.long)
 
 if (buyOverSma50andSma200)
     if (high >= upper and close > ma200 and close > ma50)
         rscTi := 1
-        //strategy.entry("Long", strategy.long)
 
 if (low <= lower)
     rscTi := -1
-    //strategy.entry("Short", strategy.short, when=low <= lower)
 
-rscTiActive := rscTi == 1 or rscTi == -1 ? rscTi : rscTiActive[1]
-rscTi := rscTiActive[1] == rscTi ? 0 : rscTi
+// Update the active signal
+rscTiActive := (rscTi == 1 or rscTi == -1) ? rscTi : rscTiActive[1]
+rscTi := (rscTiActive[1] == rscTi) ? 0 : rscTi
 
-plotshape(rscTi == 1 ? true : false, location=location.belowbar, style=shape.triangleup, color=color.aqua, size=size.tiny, text="Buy", textcolor=color.aqua, transp=0) 
-plotshape(rscTi == -1 ? true : false, location=location.abovebar, style=shape.triangledown, color=color.red, size=size.tiny, text="Sell", textcolor=color.red, transp=0)
+// Plot buy and sell signals
+plotshape(series=(rscTi == 1), location=location.belowbar, style=shape.triangleup, color=color.new(color.aqua, 0), size=size.tiny, text="Buy", textcolor=color.new(color.aqua, 0))
+plotshape(series=(rscTi == -1), location=location.abovebar, style=shape.triangledown, color=color.new(color.red, 0), size=size.tiny, text="Sell", textcolor=color.new(color.red, 0))
 
-alertcondition(rscTi == 1 ? true : false, title="RSC TT Buy", message='{"content": "RSC Trend Trade Buy Alert:\\n {{exchange}}:{{ticker}}\\n Price: {{close}}"}')
-alertcondition(rscTi == -1 ? true : false, title="RSC TT Sell", message='{"content": "RSC Trend Trade Sell Alert:\\n {{exchange}}:{{ticker}}\\n Price: {{close}}"}')
+// Alert conditions
+alertcondition(condition=(rscTi == 1), title="RSC TT Buy", message='{"content": "RSC Trend Trade Buy Alert:\\n {{exchange}}:{{ticker}}\\n Price: {{close}}"}')
+alertcondition(condition=(rscTi == -1), title="RSC TT Sell", message='{"content": "RSC Trend Trade Sell Alert:\\n {{exchange}}:{{ticker}}\\n Price: {{close}}"}')
